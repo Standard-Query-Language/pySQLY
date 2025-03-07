@@ -1,5 +1,5 @@
 pyyaml==5.4.1
 mysql-connector-python==8.0.26
-psycopg2==2.9.1
+psycopg2==2.9.10
 cx_Oracle==8.2.1
 pyodbc==4.0.32
