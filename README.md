@@ -24,7 +24,7 @@ pip install pysqly
 ### Using the Python API
 
 ```python
-from sqly.executor import SQLYExecutor
+from sqly.SQLYExecutor import SQLYExecutor
 
 datasource = "your_database_connection"
 db_type = "postgres"  # Choose from sqlite, mariadb, postgres, oracle, mssql
