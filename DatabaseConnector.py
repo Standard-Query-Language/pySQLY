@@ -1,66 +1,43 @@
-from MSSQLConnector import MSSQLConnector
-from MariaDBConnector import MariaDBConnector
-from OracleConnector import OracleConnector
-from PostgresConnector import PostgresConnector
+from DBConnectorFactory import DBConnectorFactory
 from SQLYExecutionError import SQLYExecutionError
-from SQLYUtils import SQLYUtils
-from SQLiteConnector import SQLiteConnector
 
 
 class DatabaseConnector:
     """
-    DatabaseConnector is a utility class that provides a method to obtain a specific
-    database connector instance based on the database type.
-
-    Methods:
-        get_connector(db_type: str, connection: Any) -> Any:
-            Returns an instance of the appropriate database connector class based on
-            the provided database type.
-
-            Parameters:
-                db_type (str): The type of the database (e.g., 'sqlite', 'mariadb', 'postgres', 'oracle', 'mssql').
-                connection (Any): The connection object or connection string required to establish a connection to the database.
-
-            Returns:
-                An instance of the corresponding database connector class.
-
-            Raises:
-                SQLYExecutionError: If the provided database type is not supported.
+    DatabaseConnector is a utility class that provides methods to connect to
+    and execute queries against different types of databases.
     """
-    @staticmethod
-    def get_connector(db_type, connection):
+    def __init__(self, db_type, connection):
         """
-        Returns a database connector instance based on the specified database type.
+        Initializes the DatabaseConnector with the database type and connection information.
 
         Args:
             db_type (str): The type of the database (e.g., "sqlite", "mariadb", "postgres", "oracle", "mssql").
             connection: The connection object or parameters required to establish the database connection.
+        """
+        self.db_type = db_type
+        self.connection = connection
+        self.connector = None
+
+    def _ensure_connector(self):
+        """
+        Ensures that a connector instance exists, creating it if necessary.
 
         Returns:
-            An instance of the corresponding database connector class.
-
-        Raises:
-            SQLYExecutionError: If the specified database type is not supported.
+            The database connector instance.
         """
-        connectors = {
-            "sqlite": SQLiteConnector,
-            "mariadb": MariaDBConnector,
-            "postgres": PostgresConnector,
-            "oracle": OracleConnector,
-            "mssql": MSSQLConnector,
-        }
-        if db_type not in connectors:
-            raise SQLYExecutionError("Unsupported database type: " + db_type)
-        return connectors[db_type](connection)
+        if self.connector is None:
+            self.connector = DBConnectorFactory.create_connector(self.db_type, self.connection)
+        return self.connector
 
-    def execute_query(self, query: dict, db_type: str, connection: Any):
+    def execute_query(self, query: dict, db_type=None, connection=None):
         """
         Executes a SQLY query against a specified database.
 
         Args:
             query (dict): The query dictionary"
-            db_type (str): The type of the database (e.g., "sqlite", "mariadb", "postgres", "oracle", "mssql").
-            connection: The connection object or parameters required to establish the database connection.
+            db_type (str, optional): The type of the database. Defaults to the instance's db_type.
+            connection (optional): The connection object or parameters. Defaults to the instance's connection.
 
         Returns:
             The result of the executed query.
@@ -68,6 +45,15 @@ class DatabaseConnector:
         Raises:
             SQLYExecutionError: If the query is invalid or an error occurs during execution.
         """
-        db_connector = DatabaseConnector.get_connector(db_type, connection)
-        sql, params = SQLYUtils.translate_to_sql(query)
-        return db_connector.execute(sql, params)
+        # Use provided values or fall back to instance attributes
+        db_type = db_type or self.db_type
+        connection = connection or self.connection
+
+        if db_type != self.db_type or connection != self.connection:
+            # If parameters differ from instance attributes, create a new connector
+            connector = DBConnectorFactory.create_connector(db_type, connection)
+        else:
+            connector = self._ensure_connector()
+
+        # Execute the query using the appropriate connector
+        return connector.execute_query(query)

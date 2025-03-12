@@ -3,24 +3,14 @@ import DatabaseConnector
 
 class SQLYUtils:
     """
-    SQLYUtils is a utility class that provides static methods for validating and executing SQLY queries.
+    SQLYUtils is a utility class that provides static methods for validating and translating SQLY queries.
 
     Methods:
         validate_query(query: dict) -> bool:
             Checks if the provided query dictionary contains the necessary fields for a SQLY query.
-            Args:
-                query (dict): The query dictionary to validate.
-            Returns:
-                bool: True if the query contains the "select" and "from" fields, False otherwise.
 
-        execute_query(query: dict, datasource, db_type):
-            Executes a SQLY query against a specified database.
-            Args:
-                query (dict): The query dictionary to execute.
-                datasource: The data source to connect to.
-                db_type: The type of the database (e.g., MySQL, PostgreSQL).
-            Returns:
-                The result of the executed query.
+        translate_to_sql(query: dict) -> tuple[str, list]:
+            Translates a dictionary query representation into a SQL query and its parameters.
     """
     @staticmethod
     def validate_query(query: dict) -> bool:
@@ -34,22 +24,6 @@ class SQLYUtils:
             bool: True if the query contains the "select" and "from" fields, False otherwise.
         """
         return isinstance(query, dict) and "select" in query and "from" in query
-
-    @staticmethod
-    def execute_query(query: dict, datasource, db_type):
-        """
-        Executes a SQLY query against a database.
-
-        Args:
-            query (dict): The SQLY query to be executed.
-            datasource: The data source to connect to.
-            db_type: The type of the database (e.g., MySQL, PostgreSQL).
-
-        Returns:
-            The result of the executed query.
-        """
-        db_connector = DatabaseConnector.DatabaseConnector(db_type, datasource)
-        return db_connector.execute_query(query, db_type, datasource)
 
     @staticmethod
     def translate_to_sql(query: dict) -> tuple[str, list]:

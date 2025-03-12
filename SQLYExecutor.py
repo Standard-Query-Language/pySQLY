@@ -1,6 +1,7 @@
 from SQLYParser import SQLYParser
 from SQLYExecutionError import SQLYExecutionError
 from SQLYUtils import SQLYUtils
+from DatabaseConnector import DatabaseConnector
 
 
 class SQLYExecutor:
@@ -10,6 +11,7 @@ class SQLYExecutor:
     Attributes:
         datasource: The data source against which the queries will be executed.
         db_type: The type of the database (optional).
+        db_connector: The database connector instance.
 
     Methods:
         execute(query: str):
@@ -30,6 +32,7 @@ class SQLYExecutor:
         """
         self.datasource = datasource
         self.db_type = db_type
+        self.db_connector = DatabaseConnector(db_type, datasource) if db_type else None
 
     def execute(self, query: str):
         """
@@ -66,6 +69,9 @@ class SQLYExecutor:
             SQLYExecutionError: If there is an error during query execution.
         """
         try:
-            return SQLYUtils.execute_query(parsed_query, self.datasource, self.db_type)
+            if not self.db_connector:
+                raise SQLYExecutionError("Database type not specified for the executor.")
+
+            return self.db_connector.execute_query(parsed_query)
         except Exception as e:
             raise SQLYExecutionError("Query execution error: " + str(e)) from e

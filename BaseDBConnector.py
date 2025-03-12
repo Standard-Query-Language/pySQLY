@@ -1,20 +1,13 @@
+from IDBConnector import IDBConnector
 from SQLYExecutionError import SQLYExecutionError
 from SQLYUtils import SQLYUtils
 
-
-class BaseDBConnector:
+class BaseDBConnector(IDBConnector):
     """
     A base class for database connectors that provides methods to execute SQL queries.
 
     Attributes:
         connection: A database connection object.
-
-    Methods:
-        execute_query(query: dict):
-            Translates a query dictionary to SQL and executes it.
-
-        _execute(sql, params):
-            Executes a given SQL statement with parameters and handles the result.
     """
     def __init__(self, connection):
         """
@@ -36,9 +29,9 @@ class BaseDBConnector:
             Any: The result of the executed query.
         """
         sql, params = SQLYUtils.translate_to_sql(query)
-        return self._execute(sql, params)
+        return self.execute(sql, params)
 
-    def _execute(self, sql, params):
+    def execute(self, sql, params):
         """
         Executes a given SQL statement with the provided parameters.
 
