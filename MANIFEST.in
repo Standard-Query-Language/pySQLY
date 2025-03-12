@@ -1,0 +1,11 @@
+include LICENSE
+include README.md
+include CHANGELOG.md
+include CONTRIBUTING.md
+include CODE_OF_CONDUCT.md
+include API.md
+include EXAMPLES.md
+include pyproject.toml
+include requirements.txt
+
+recursive-include tests *.py

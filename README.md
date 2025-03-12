@@ -1,6 +1,6 @@
 # pySQLY - SQL with YAML
 
-[![Python package](https://github.com/yourusername/pySQLY/actions/workflows/python-package.yml/badge.svg)](https://github.com/yourusername/pySQLY/actions/workflows/python-package.yml)
+[![Python package](https://github.com/Standard-Query-Language/pySQLY/actions/workflows/python-package.yml/badge.svg)](https://github.com/Standard-Query-Language/pySQLY/actions/workflows/python-package.yml)
 [![PyPI version](https://badge.fury.io/py/pysqly.svg)](https://badge.fury.io/py/pysqly)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
@@ -24,9 +24,28 @@ Install pySQLY from PyPI:
 pip install pysqly
 ```
 
+To include support for specific databases, use the optional extras:
+
+```bash
+# For MariaDB/MySQL support
+pip install "pysqly[mariadb]"
+
+# For PostgreSQL support
+pip install "pysqly[postgres]"
+
+# For Oracle support
+pip install "pysqly[oracle]"
+
+# For Microsoft SQL Server support
+pip install "pysqly[mssql]"
+
+# For all database support
+pip install "pysqly[all]"
+```
+
 ### Dependencies
 
-pySQLY requires the following database drivers depending on which databases you intend to use:
+pySQLY core requires only PyYAML. Additional database drivers are installed based on your needs:
 
 - SQLite: Built into Python standard library
 - MariaDB/MySQL: `mysql-connector-python`
@@ -76,24 +95,53 @@ sqly-cli "select: [username, email]\nfrom: users\nwhere:\n  - field: active\n   
 - [API Documentation](./API.md) - Detailed library API reference
 - [Examples](./EXAMPLES.md) - More usage examples and patterns
 - [Contributing](./CONTRIBUTING.md) - Guidelines for contributing to pySQLY
+- [Changelog](./CHANGELOG.md) - Version history and changes
 
 ## Project Structure
 
-```bash
+```
 pySQLY/
-├── __init__.py                 # Package exports
-├── IDBConnector.py             # Database connector interface
-├── BaseDBConnector.py          # Base implementation of the connector interface
-├── SQLYParser.py               # YAML to SQL parser
-├── SQLYExecutor.py             # Main query executor
-├── SQLYUtils.py                # Helper utilities
-├── DBConnectorFactory.py       # Factory for database connectors
-└── database_connectors/        # Specific database implementations
-    ├── SQLiteConnector.py
-    ├── MariaDBConnector.py
-    ├── PostgresConnector.py
-    ├── OracleConnector.py
-    └── MSSQLConnector.py
+├── src/
+│   └── pysqly/               # Main package directory
+│       ├── __init__.py       # Package exports and version
+│       ├── cli.py            # Command-line interface
+│       ├── core/             # Core functionality
+│       │   ├── __init__.py
+│       │   ├── executor.py   # Main SQLY executor
+│       │   ├── parser.py     # YAML to SQL parser
+│       │   └── utils.py      # Helper utilities
+│       ├── errors/           # Error handling
+│       │   ├── __init__.py
+│       │   ├── base.py       # Base error class
+│       │   ├── execution.py  # Execution errors
+│       │   └── parse.py      # Parsing errors
+│       └── connectors/       # Database connectors
+│           ├── __init__.py
+│           ├── interface.py  # Connector interface
+│           ├── base.py       # Base connector implementation
+│           ├── factory.py    # Connector factory
+│           ├── database.py   # Database connection manager
+│           ├── sqlite.py     # SQLite connector
+│           ├── mariadb.py    # MariaDB connector
+│           ├── postgres.py   # PostgreSQL connector
+│           ├── oracle.py     # Oracle connector
+│           └── mssql.py      # MS SQL Server connector
+├── tests/                    # Test directory
+│   ├── __init__.py
+│   ├── conftest.py           # Test fixtures and configuration
+│   ├── test_parser.py        # Parser tests
+│   └── test_utils.py         # Utilities tests
+├── pyproject.toml            # Project metadata and dependencies
+├── setup.py                  # Setup script (for backwards compatibility)
+├── requirements.txt          # Development dependencies
+├── MANIFEST.in               # Package manifest
+├── LICENSE                   # MIT license
+├── README.md                 # This file
+├── API.md                    # API documentation
+├── EXAMPLES.md               # Usage examples
+├── CONTRIBUTING.md           # Contribution guidelines
+├── CODE_OF_CONDUCT.md        # Code of conduct
+└── CHANGELOG.md              # Version history
 ```
 
 ## SQLY Query Format

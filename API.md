@@ -4,20 +4,29 @@ This document provides detailed information about the pySQLY API.
 
 ## Table of Contents
 
-- [SQLYExecutor](#sqlyexecutor)
-- [SQLYParser](#sqlyparser)
-- [SQLYUtils](#sqlyutils)
+- [Core Modules](#core-modules)
+  - [SQLYExecutor](#sqlyexecutor)
+  - [SQLYParser](#sqlyparser)
+  - [SQLYUtils](#sqlyutils)
 - [Database Connectors](#database-connectors)
   - [IDBConnector](#idbconnector)
   - [BaseDBConnector](#basedbconnector)
+  - [DatabaseConnector](#databaseconnector)
+  - [DBConnectorFactory](#dbconnectorfactory)
   - [Specific Connectors](#specific-connectors)
 - [Error Handling](#error-handling)
+  - [SQLYError](#sqlyerror)
+  - [SQLYParseError](#sqlyparserror)
+  - [SQLYExecutionError](#sqlyexecutionerror)
+- [Command Line Interface](#command-line-interface)
 
-## SQLYExecutor
+## Core Modules
+
+### SQLYExecutor
 
 The central class for executing SQLY queries.
 
-### Constructor
+#### Constructor
 
 ```python
 SQLYExecutor(datasource, db_type=None)
@@ -28,9 +37,9 @@ SQLYExecutor(datasource, db_type=None)
 - `datasource`: Connection string or path to the database
 - `db_type`: Type of database ("sqlite", "mariadb", "postgres", "oracle", "mssql")
 
-### SQLYExecutor Methods
+#### Methods
 
-#### execute
+##### execute
 
 ```python
 execute(query: str) -> Any
@@ -54,6 +63,8 @@ Executes a SQLY query string.
 **Example:**
 
 ```python
+from pysqly import SQLYExecutor
+
 executor = SQLYExecutor("mydb.sqlite", "sqlite")
 results = executor.execute("""
 select:
@@ -67,13 +78,13 @@ where:
 """)
 ```
 
-## SQLYParser
+### SQLYParser
 
 Handles parsing of SQLY query strings into structured dictionaries.
 
-### SQLYParser Methods
+#### Methods
 
-#### parse
+##### parse
 
 ```python
 SQLYParser.parse(query: str) -> dict
@@ -91,13 +102,29 @@ SQLYParser.parse(query: str) -> dict
 
 - `SQLYParseError`: If the YAML cannot be parsed
 
-## SQLYUtils
+**Example:**
+
+```python
+from pysqly import SQLYParser
+
+query = """
+select:
+  - id
+  - name
+from: users
+"""
+
+parsed_query = SQLYParser.parse(query)
+# parsed_query = {'select': ['id', 'name'], 'from': 'users'}
+```
+
+### SQLYUtils
 
 Utility functions for SQLY operations.
 
-### SQLYUtils Methods
+#### Methods
 
-#### validate_query
+##### validate_query
 
 ```python
 SQLYUtils.validate_query(query: dict) -> bool
@@ -113,7 +140,7 @@ Validates if a query dictionary has all required fields.
 
 - `True` if valid, `False` otherwise
 
-#### translate_to_sql
+##### translate_to_sql
 
 ```python
 SQLYUtils.translate_to_sql(query: dict) -> tuple[str, list]
@@ -129,15 +156,33 @@ Converts a SQLY dictionary to a SQL query string and parameters.
 
 - Tuple with SQL query string and parameter list
 
+**Example:**
+
+```python
+from pysqly import SQLYUtils
+
+query = {
+    "select": ["id", "name"],
+    "from": "users",
+    "where": [
+        {"field": "age", "operator": ">", "value": 18}
+    ]
+}
+
+sql, params = SQLYUtils.translate_to_sql(query)
+# sql = "SELECT id, name FROM users WHERE age > %s"
+# params = [18]
+```
+
 ## Database Connectors
 
 ### IDBConnector
 
 Interface for all database connectors.
 
-#### IDBConnector Methods
+#### Methods
 
-##### execute_sql
+##### execute
 
 ```python
 execute(sql, params) -> Any
@@ -149,7 +194,7 @@ Abstract method that must be implemented by all connectors.
 
 Base implementation of the IDBConnector interface.
 
-#### BaseDBConnector Methods
+#### Methods
 
 ##### execute_query
 
@@ -167,6 +212,45 @@ execute(sql, params) -> Any
 
 Executes raw SQL with parameters.
 
+### DatabaseConnector
+
+High-level connector that manages connections to various database types.
+
+#### Constructor
+
+```python
+DatabaseConnector(db_type, connection)
+```
+
+**Parameters:**
+
+- `db_type`: Type of database (e.g., "sqlite", "postgres")
+- `connection`: Connection string or object
+
+#### Methods
+
+##### execute_query
+
+```python
+execute_query(query: dict, db_type=None, connection=None) -> Any
+```
+
+Executes a SQLY query against a specified database.
+
+### DBConnectorFactory
+
+Factory class for creating database-specific connectors.
+
+#### Methods
+
+##### create_connector
+
+```python
+DBConnectorFactory.create_connector(db_type, connection) -> IDBConnector
+```
+
+Creates and returns a connector instance for the specified database type.
+
 ### Specific Connectors
 
 pySQLY includes the following database-specific connectors:
@@ -183,9 +267,29 @@ Each connector inherits from `BaseDBConnector` and may include database-specific
 
 pySQLY defines a hierarchy of exception classes for error handling:
 
-- `SQLYError`: Base exception class for all pySQLY errors
-  - `SQLYParseError`: Raised when parsing a SQLY query fails
-  - `SQLYExecutionError`: Raised when executing a query fails
+### SQLYError
+
+```python
+class SQLYError(Exception)
+```
+
+Base exception class for all pySQLY errors.
+
+### SQLYParseError
+
+```python
+class SQLYParseError(SQLYError)
+```
+
+Raised when parsing a SQLY query fails.
+
+### SQLYExecutionError
+
+```python
+class SQLYExecutionError(SQLYError)
+```
+
+Raised when executing a query fails.
 
 **Example:**
 
@@ -201,4 +305,24 @@ except SQLYExecutionError as e:
     print(f"Error executing query: {e}")
 ```
 
-For more detailed examples, see the [Examples](./EXAMPLES.md) document.
+## Command Line Interface
+
+pySQLY includes a command-line interface for executing queries directly.
+
+```
+usage: sqly-cli [-h] [--db_type DB_TYPE] [--datasource DATASOURCE] [--version] query
+
+SQLY CLI Tool
+
+positional arguments:
+  query                 SQLY query as a YAML string
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --db_type DB_TYPE     Database type (sqlite, mariadb, postgres, oracle, mssql)
+  --datasource DATASOURCE
+                        Database connection details
+  --version             show program's version number and exit
+```
+
+For more examples, see the [Examples](./EXAMPLES.md) document.
