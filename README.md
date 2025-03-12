@@ -1,61 +1,119 @@
-# SQLY Python Module
+# pySQLY - SQL with YAML
+
+[![Python package](https://github.com/yourusername/pySQLY/actions/workflows/python-package.yml/badge.svg)](https://github.com/yourusername/pySQLY/actions/workflows/python-package.yml)
+[![PyPI version](https://badge.fury.io/py/pysqly.svg)](https://badge.fury.io/py/pysqly)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ## Overview
 
-SQLY is a domain-specific query language designed to interact with various databases in a structured YAML format. This Python module provides an interface for integrating SQLY within applications, allowing developers to execute queries across multiple database systems seamlessly.
+pySQLY is a Python library that enables developers to write database queries using YAML syntax instead of traditional SQL. This approach simplifies database interactions, enhances readability, and provides a consistent interface across multiple database systems.
 
-## Features
+### Key Features
 
-- Supports SQLite, MariaDB, PostgreSQL, Oracle, and MSSQL.
-- YAML-based query syntax for simplicity and readability.
-- Follows DRY, SOLID, and ACID principles for maintainability and reliability.
-- CLI tool for quick command-line execution of SQLY queries.
+- **Multi-Database Support**: Works with SQLite, MariaDB/MySQL, PostgreSQL, Oracle, and Microsoft SQL Server
+- **YAML-Based Syntax**: Intuitive, structured query format that reduces syntax errors
+- **Unified Interface**: Single API to interact with different database systems
+- **CLI Support**: Run SQLY queries directly from the command line
+- **Type Safety**: Leverages Python type annotations for better IDE support and error checking
 
 ## Installation
 
-To install SQLY, run:
+Install pySQLY from PyPI:
 
-```sh
+```bash
 pip install pysqly
 ```
 
-## Usage
+### Dependencies
 
-### Using the Python API
+pySQLY requires the following database drivers depending on which databases you intend to use:
+
+- SQLite: Built into Python standard library
+- MariaDB/MySQL: `mysql-connector-python`
+- PostgreSQL: `psycopg2`
+- Oracle: `cx_Oracle`
+- Microsoft SQL Server: `pyodbc`
+
+## Quick Start
+
+### Basic Query Example
 
 ```python
-from sqly.SQLYExecutor import SQLYExecutor
+from pysqly import SQLYExecutor
 
-datasource = "your_database_connection"
-db_type = "postgres"  # Choose from sqlite, mariadb, postgres, oracle, mssql
+# Connect to a SQLite database
+executor = SQLYExecutor("path/to/database.db", "sqlite")
 
-executor = SQLYExecutor(datasource, db_type)
+# Define your query in YAML format
 query = """
 select:
-  - name
-  - age
+  - username
+  - email
+  - created_at
 from: users
 where:
-  - field: age
+  - field: active
+    operator: "="
+    value: true
+  - field: last_login
     operator: ">"
-    value: 18
+    value: "2023-01-01"
 """
 
-result = executor.execute(query)
-print(result)
+# Execute the query
+results = executor.execute(query)
+print(results)
 ```
 
-### Using the CLI Tool
+### Using the CLI
 
-```sh
-sqly-cli "select: [name, age]\nfrom: users\nwhere:\n  - field: age\n    operator: '>'\n    value: 18" --db_type postgres --datasource "your_db_connection"
+```bash
+sqly-cli "select: [username, email]\nfrom: users\nwhere:\n  - field: active\n    operator: '='\n    value: true" --db_type sqlite --datasource "path/to/database.db"
 ```
 
+## Documentation
 
-## Contributing
+- [API Documentation](./API.md) - Detailed library API reference
+- [Examples](./EXAMPLES.md) - More usage examples and patterns
+- [Contributing](./CONTRIBUTING.md) - Guidelines for contributing to pySQLY
 
-Contributions are welcome! Feel free to submit issues or pull requests to enhance SQLY.
+## Project Structure
+
+```bash
+pySQLY/
+├── __init__.py                 # Package exports
+├── IDBConnector.py             # Database connector interface
+├── BaseDBConnector.py          # Base implementation of the connector interface
+├── SQLYParser.py               # YAML to SQL parser
+├── SQLYExecutor.py             # Main query executor
+├── SQLYUtils.py                # Helper utilities
+├── DBConnectorFactory.py       # Factory for database connectors
+└── database_connectors/        # Specific database implementations
+    ├── SQLiteConnector.py
+    ├── MariaDBConnector.py
+    ├── PostgresConnector.py
+    ├── OracleConnector.py
+    └── MSSQLConnector.py
+```
+
+## SQLY Query Format
+
+SQLY queries use YAML syntax to represent SQL operations:
+
+```yaml
+# Basic SELECT query
+select:
+  - column1
+  - column2
+from: table_name
+where:
+  - field: column1
+    operator: "="
+    value: some_value
+```
+
+See the [Examples](./EXAMPLES.md) document for more complex query patterns.
 
 ## License
 
-This project is licensed under the MIT License.
+pySQLY is distributed under the [MIT License](LICENSE).
