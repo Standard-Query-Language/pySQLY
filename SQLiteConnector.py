@@ -1,5 +1,5 @@
+import sqlite3
 from BaseDBConnector import BaseDBConnector
-
 
 class SQLiteConnector(BaseDBConnector):
     """
@@ -15,4 +15,7 @@ class SQLiteConnector(BaseDBConnector):
     Methods:
         None
     """
-    pass
+    def __init__(self, connection):
+        if isinstance(connection, str):
+            connection = sqlite3.connect(connection)
+        super().__init__(connection)

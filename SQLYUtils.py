@@ -48,7 +48,7 @@ class SQLYUtils:
         Returns:
             The result of the executed query.
         """
-        db_connector = DatabaseConnector.get_connector(db_type, datasource)
+        db_connector = DatabaseConnector.DatabaseConnector(db_type, datasource)
         return db_connector.execute_query(query)
 
     @staticmethod

@@ -1,9 +1,10 @@
-import MSSQLConnector
-import MariaDBConnector
-import OracleConnector
-import PostgresConnector
+from MSSQLConnector import MSSQLConnector
+from MariaDBConnector import MariaDBConnector
+from OracleConnector import OracleConnector
+from PostgresConnector import PostgresConnector
 from SQLYExecutionError import SQLYExecutionError
-import SQLiteConnector
+from SQLYUtils import SQLYUtils
+from SQLiteConnector import SQLiteConnector
 
 
 class DatabaseConnector:
@@ -51,3 +52,22 @@ class DatabaseConnector:
         if db_type not in connectors:
             raise SQLYExecutionError("Unsupported database type: " + db_type)
         return connectors[db_type](connection)
+
+    def execute_query(self, query: dict, db_type: str, connection: Any):
+        """
+        Executes a SQLY query against a specified database.
+
+        Args:
+            query (dict): The query dictionary"
+            db_type (str): The type of the database (e.g., "sqlite", "mariadb", "postgres", "oracle", "mssql").
+            connection: The connection object or parameters required to establish the database connection.
+
+        Returns:
+            The result of the executed query.
+
+        Raises:
+            SQLYExecutionError: If the query is invalid or an error occurs during execution.
+        """
+        db_connector = DatabaseConnector.get_connector(db_type, connection)
+        sql, params = SQLYUtils.translate_to_sql(query)
+        return db_connector.execute(sql, params)

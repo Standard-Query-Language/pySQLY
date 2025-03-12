@@ -1,3 +1,4 @@
+import cx_Oracle
 from BaseDBConnector import BaseDBConnector
 
 
@@ -15,4 +16,7 @@ class OracleConnector(BaseDBConnector):
     Methods:
         None
     """
-    pass
+    def __init__(self, connection):
+        if isinstance(connection, str):
+            connection = cx_Oracle.connect(connection)
+        super().__init__(connection)

@@ -1,5 +1,5 @@
+import mysql.connector
 from BaseDBConnector import BaseDBConnector
-
 
 class MariaDBConnector(BaseDBConnector):
     """
@@ -14,4 +14,7 @@ class MariaDBConnector(BaseDBConnector):
     Methods:
         Inherits all methods from BaseDBConnector.
     """
-    pass
+    def __init__(self, connection):
+        if isinstance(connection, str):
+            connection = mysql.connector.connect(connection)
+        super().__init__(connection)
