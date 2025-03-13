@@ -1,124 +1,167 @@
 name: Check and update workflow action references
 
 on:
-    schedule:
-        - cron: '0 0 * * 1'  # Run weekly on Mondays
-    workflow_dispatch:  # Allow manual trigger
+  schedule:
+    - cron: '0 0 * * 1'  # Run weekly on Mondays
+  workflow_dispatch:  # Allow manual trigger
 
 jobs:
-    check-and-update-workflows:
-        runs-on: ubuntu-latest
-        permissions:
-            contents: read
-            pull-requests: write
-            actions: write
+  check-and-update-workflows:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      actions: write
 
-        steps:
-            - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
 
-            - name: Set up Python
-              uses: actions/setup-python@0a5c61591373683505ea898e09a3ea4f39ef2b9c # v5.0.0
-              with:
-                  python-version: '3.11'
+      - name: Setup Python
+        uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38 # v5
+        with:
+          python-version: '3.10'
 
-            - name: Install dependencies
-              run: |
-                  python -m pip install --upgrade pip
-                  pip install PyGithub pyyaml
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install PyGithub
 
-            - name: Check workflows and update action references
-              env:
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-              run: |
-                    python - <<'EOF'
-                    import os
-                    import re
-                    import yaml
-                    import requests
-                    from github import Github
+      - name: Check and update action references
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python << 'EOF'
+          import os
+          import re
+          import glob
+          from github import Github
 
-                    # Initialize GitHub client
-                    g = Github(os.environ["GITHUB_TOKEN"])
-                    repo = g.get_repo(os.environ["GITHUB_REPOSITORY"])
+          # Initialize GitHub client
+          g = Github(os.environ['GITHUB_TOKEN'])
+          repo = g.get_repo(os.environ['GITHUB_REPOSITORY'])
 
-                    def get_latest_sha(action_owner, action_name, version):
-                            # Get the latest SHA for the given action and version
-                            url = f"https://api.github.com/repos/{action_owner}/{action_name}/commits/{version}"
-                            headers = {"Accept": "application/vnd.github.v3+json"}
-                            if "GITHUB_TOKEN" in os.environ:
-                                    headers["Authorization"] = f"token {os.environ['GITHUB_TOKEN']}"
+          # Find all workflow files
+          workflow_files = glob.glob('.github/workflows/*.yml')
 
-                            response = requests.get(url, headers=headers)
-                            if response.status_code == 200:
-                                    return response.json()["sha"]
-                            return None
+          # Initialize counts
+          updated_files = 0
+          updates = 0
 
-                    # Get all workflow files
-                    workflow_dir = ".github/workflows"
-                    updates = {}
+          for workflow_file in workflow_files:
+              with open(workflow_file, 'r') as f:
+                  content = f.read()
 
-                    for filename in os.listdir(workflow_dir):
-                            if filename.endswith((".yml", ".yaml")) and filename != "sha.yml":
-                                    filepath = os.path.join(workflow_dir, filename)
-                                    with open(filepath, 'r') as f:
-                                            content = f.read()
+              # Find action references: uses: owner/repo@ref
+              action_pattern = r'uses:\s+([a-zA-Z0-9_.-]+/[a-zA-Z0-9_.-]+)@([a-zA-Z0-9_.-]+)(\s+#.*)?'
+              matches = re.findall(action_pattern, content)
 
-                                    # Look for uses: statements that don't include SHA
-                                    lines = content.split('\n')
-                                    updated_lines = lines.copy()
-                                    needs_update = False
+              updated_content = content
+              file_updated = False
 
-                                    for i, line in enumerate(lines):
-                                            # Match pattern like: uses: actions/checkout@v3 or uses: owner/repo@v1.2.3
-                                            matches = re.search(r'^\s*uses:\s+([a-zA-Z0-9_-]+/[a-zA-Z0-9_-]+)@(v\d+[^\s#]*)(?:\s+#.*)?$', line)
-                                            if matches:
-                                                    action = matches.group(1)
-                                                    version = matches.group(2)
-                                                    # Skip if line already has SHA comment
-                                                    if not re.search(r'#\s*[a-f0-9]{40}', line):
-                                                            sha = get_latest_sha(action.split('/')[0], action.split('/')[1], version)
-                                                            if sha:
-                                                                    # Update line with SHA as comment
-                                                                    updated_line = re.sub(r'@(v\d+[^\s#]*)(?:\s+#.*)?$', f'@{sha[:40]} # {version}', line)
-                                                                    updated_lines[i] = updated_line
-                                                                    needs_update = True
-                                                                    print(f"Updating {filename}: {line.strip()} -> {updated_line.strip()}")
+              for match in matches:
+                  action, version, comment = match
+                  # Skip if already pinned to a SHA
+                  if len(version) == 40 and all(c in '0123456789abcdef' for c in version.lower()):
+                      continue
 
-                                    if needs_update:
-                                            updates[filepath] = '\n'.join(updated_lines)
+                  try:
+                      # Get the SHA for the tag/branch
+                      action_repo = g.get_repo(action)
+                      if version.startswith('v'):
+                          # It's likely a tag
+                          try:
+                              ref = action_repo.get_git_ref(f"tags/{version}")
+                              sha = ref.object.sha
 
-                    if updates:
-                            branch_name = f"action-sha-updates-{os.environ.get('GITHUB_RUN_ID', '')}"
-                            default_branch = repo.default_branch
+                              # For annotated tags, we need to get the commit SHA
+                              if ref.object.type == 'tag':
+                                  tag = action_repo.get_git_tag(sha)
+                                  sha = tag.object.sha
+                          except Exception as e:
+                              print(f"Error resolving tag {version} for {action}: {str(e)}")
+                              continue
+                      else:
+                          # It's likely a branch
+                          try:
+                              ref = action_repo.get_git_ref(f"heads/{version}")
+                              sha = ref.object.sha
+                          except Exception as e:
+                              print(f"Error resolving branch {version} for {action}: {str(e)}")
+                              continue
 
-                            # Create a new branch
-                            ref = f"refs/heads/{branch_name}"
-                            try:
-                                    repo.create_git_ref(ref=ref, sha=repo.get_branch(default_branch).commit.sha)
-                            except Exception as e:
-                                    print(f"Error creating branch: {e}")
-                                    exit(1)
+                      # Create updated reference with SHA
+                      old_ref = f"uses: {action}@{version}"
+                      new_ref = f"uses: {action}@{sha} # {version}"
 
-                            # Update files
-                            commit_message = "chore: update GitHub Action references with SHA pins"
-                            for filepath, content in updates.items():
-                                    try:
-                                            file = repo.get_contents(filepath, ref=branch_name)
-                                            repo.update_file(filepath, commit_message, content, file.sha, branch=branch_name)
-                                    except Exception as e:
-                                            print(f"Error updating {filepath}: {e}")
+                      # Update the content
+                      updated_content = updated_content.replace(old_ref, new_ref)
+                      print(f"Updating {workflow_file}: {old_ref} -> {new_ref}")
+                      file_updated = True
+                      updates += 1
 
-                            # Create PR
-                            try:
-                                    pr = repo.create_pull(
-                                            title="Update GitHub Action references with SHA pins",
-                                            body="This PR updates GitHub Action references to include SHA pins for better security and reproducibility.",
-                                            head=branch_name,
-                                            base=default_branch
-                                    )
-                                    print(f"Created PR #{pr.number}: {pr.html_url}")
-                            except Exception as e:
-                                    print(f"Error creating PR: {e}")
-                    else:
-                            print("No updates needed - all action references already use SHA pins.")
-                    EOF
+                  except Exception as e:
+                      print(f"Error processing {action}@{version}: {str(e)}")
+
+              # Write updated content back to the file
+              if file_updated:
+                  with open(workflow_file, 'w') as f:
+                      f.write(updated_content)
+                  updated_files += 1
+
+          # Create a PR if there were updates
+          if updated_files > 0:
+              try:
+                  branch_name = "action-sha-updates"
+                  base_branch = repo.default_branch
+
+                  # Check if branch exists and delete if it does
+                  try:
+                      repo.get_git_ref(f"heads/{branch_name}")
+                      repo.get_git_ref(f"heads/{branch_name}").delete()
+                  except:
+                      pass
+
+                  # Create branch
+                  sb = repo.get_branch(base_branch)
+                  repo.create_git_ref(ref=f"refs/heads/{branch_name}", sha=sb.commit.sha)
+
+                  # Commit changes
+                  commit_message = f"Update action references with SHA pins\n\nUpdated {updates} references in {updated_files} workflow files"
+
+                  # Create a commit with all changes
+                  element_list = []
+                  for workflow_file in workflow_files:
+                      with open(workflow_file, 'r') as f:
+                          content = f.read()
+
+                      element = {
+                          "path": workflow_file,
+                          "mode": "100644",
+                          "type": "blob",
+                          "content": content
+                      }
+                      element_list.append(element)
+
+                  commit = repo.create_git_tree(element_list, base_tree=sb.commit.tree)
+                  parent = repo.get_git_commit(sb.commit.sha)
+                  commit = repo.create_git_commit(commit_message, commit, [parent])
+                  ref = repo.get_git_ref(f"heads/{branch_name}")
+                  ref.edit(commit.sha)
+
+                  # Create a PR
+                  pr = repo.create_pull(
+                      title="Update GitHub Action references with SHA pins",
+                      body="This PR updates GitHub Action references to use SHA pins for better security.",
+                      base=base_branch,
+                      head=branch_name
+                  )
+                  print(f"Created PR #{pr.number}")
+
+              except Exception as e:
+                  print(f"Error creating PR: {str(e)}")
+                  exit(1)
+
+          else:
+              print("No updates needed.")
+          EOF
