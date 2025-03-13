@@ -5,7 +5,7 @@ from setuptools import find_packages, setup
 if __name__ == "__main__":
     setup(
         name="pysqly",
-        version="0.1.0",
+        version='master',
         description="SQL with YAML - A simplified query language for "
         "multiple databases",
         long_description=open("README.md").read(),
