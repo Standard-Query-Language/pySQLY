@@ -52,5 +52,6 @@ jobs:
           prerelease: false
           files: |
             dist/*
+          generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.TAG_TOKEN }}
