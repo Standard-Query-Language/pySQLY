@@ -15,7 +15,7 @@ The pySQLY team takes security issues seriously. We appreciate your efforts
 to responsibly disclose your findings and will make every effort to acknowledge
 your contributions.
 
-To report a security issue, please email security@sqly.example.com with a
+To report a security issue, please email support@antonybailey.net with a
 description of the issue, the steps you took to create the issue, affected
 versions, and if known, mitigations for the issue.
 
