@@ -30,14 +30,15 @@ jobs:
 
       - name: Extract tag name
         id: tag
-        run: echo "TAG_NAME=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+        run: |
+          echo "TAG_NAME=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+          # Remove 'v' prefix if present for version
+          echo "VERSION_NAME=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
 
       - name: Update version in setup.py
         run: |
-          # Remove 'v' prefix if present
-          VERSION="${{ steps.tag.outputs.TAG_NAME }}"
-          VERSION=${VERSION#v}
-          sed -i "s/version=['\"][^'\"]*['\"]/version='$VERSION'/g" setup.py
+          # Replace version in setup.py with the tag version
+          sed -i "s/version=\".*\"/version=\"${{ steps.tag.outputs.VERSION_NAME }}\"/g" setup.py
 
       - name: Build and package
         run: |
