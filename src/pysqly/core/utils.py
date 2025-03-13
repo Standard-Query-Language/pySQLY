@@ -12,7 +12,8 @@ class SQLYUtils:
             Checks if the provided query dictionary contains the necessary fields.
 
         translate_to_sql(query: dict) -> tuple[str, list]:
-            Translates a dictionary query representation into a SQL query and parameters.
+            Translates a dictionary query representation into a SQL query and
+            parameters.
     """
 
     @staticmethod
@@ -58,7 +59,8 @@ class SQLYUtils:
             ...     ]
             ... }
             >>> translate_to_sql(query)
-            ('SELECT id, name FROM users WHERE age > %s AND status = %s', [18, 'active'])
+            ('SELECT id, name FROM users WHERE age > %s AND status = %s',
+            [18, 'active'])
         """
         # Use a placeholder approach for the entire query structure
         sql_parts = ["SELECT"]
@@ -66,7 +68,8 @@ class SQLYUtils:
 
         # Handle SELECT clause
         select_fields = query.get("select", ["*"])
-        sql_parts.append(", ".join(select_fields))  # This should be validated separately
+        # This should be validated separately
+        sql_parts.append(", ".join(select_fields))
 
         # Handle FROM clause
         sql_parts.append("FROM")

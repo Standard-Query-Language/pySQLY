@@ -18,11 +18,13 @@ class MariaDBConnector(BaseDBConnector):
         """
         Initialize the MariaDBConnector.
 
-        This constructor accepts either a connection string or an existing MySQL connection.
+        This constructor accepts either a connection string or an existing
+        MySQL connection.
 
         Args:
-            connection: If a string is provided, it's treated as a connection string and a new connection is established.
-                If a connection object is provided, it's used directly.
+            connection: If a string is provided, it's treated as a connection string
+                and a new connection is established. If a connection object is provided,
+                it's used directly.
         """
         if isinstance(connection, str):
             connection = mysql.connector.connect(connection)

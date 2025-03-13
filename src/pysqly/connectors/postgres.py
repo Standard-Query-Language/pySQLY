@@ -20,8 +20,8 @@ class PostgresConnector(BaseDBConnector):
 
         Args:
             connection: Either a connection string to establish a new connection
-                or an existing psycopg2 connection object. If a string is provided, it will be used to create
-                a new connection.
+                or an existing psycopg2 connection object. If a string is provided,
+                it will be used to create a new connection.
 
         Notes:
             The connection string should be in the format:

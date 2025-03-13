@@ -51,7 +51,8 @@ class BaseDBConnector(IDBConnector):
             If the SQL statement is not a SELECT query, returns a success message.
 
         Raises:
-            SQLYExecutionError: If an error occurs during the execution of the SQL statement.
+            SQLYExecutionError: If an error occurs during the execution of
+            the SQL statement.
         """
         cursor = self.connection.cursor()
         try:
@@ -61,6 +62,8 @@ class BaseDBConnector(IDBConnector):
             self.connection.commit()
             return "Query executed successfully"
         except Exception as e:
-            raise SQLYExecutionError(f"{self.__class__.__name__} error: {str(e)}") from e
+            raise SQLYExecutionError(
+                f"{self.__class__.__name__} error: {str(e)}"
+            ) from e
         finally:
             cursor.close()

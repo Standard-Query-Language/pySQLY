@@ -19,14 +19,16 @@ class IDBConnector(ABC):
         """
         Execute a SQL query with parameters.
 
-        This method executes a SQL query with the provided parameters against the database.
+        This method executes a SQL query with the provided parameters against the
+        database.
 
         Args:
             sql: The SQL query to execute.
             params: The parameters to be used in the SQL query.
 
         Returns:
-            The result of the query execution, which depends on the specific database implementation.
+            The result of the query execution, which depends on the specific database
+            implementation.
 
         Raises:
             DatabaseError: If the query execution fails.

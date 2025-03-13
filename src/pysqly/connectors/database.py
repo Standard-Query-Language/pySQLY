@@ -7,25 +7,31 @@ from .factory import DBConnectorFactory
 
 class DatabaseConnector:
     """
-    A class that manages connections to various database types and executes SQLY queries.
+    A class that manages connections to various database types and executes
+    SQLY queries.
 
     This class serves as an abstraction layer over different database connectors,
-    allowing for a unified interface to execute queries across different database systems
-    such as SQLite, MariaDB, PostgreSQL, Oracle, and MS SQL Server.
+    allowing for a unified interface to execute queries across different
+    database systems such as SQLite, MariaDB, PostgreSQL, Oracle,
+    and MS SQL Server.
 
     Attributes:
         db_type: The type of the database being connected to.
-        connection: The connection parameters or object needed to establish a database connection.
-        connector: The actual database connector instance used to interact with the database.
+        connection: The connection parameters or object needed to establish a
+        connection.
+        connector: The actual database connector instance used to interact with
+        the database.
 
     Examples:
         >>> connector = DatabaseConnector("sqlite", ":memory:")
-        >>> result = connector.execute_query({"select": ["id", "name"], "from": "users"})
+        >>> result = connector.execute_query({"select": ["id", "name"],
+        "from": "users"})
     """
 
     def __init__(self, db_type: str, connection: Any) -> None:
         """
-        Initialize the DatabaseConnector with the database type and connection information.
+        Initialize the DatabaseConnector with the database type and connection
+        information.
 
         Args:
             db_type: The type of the database (e.g., "sqlite", "mariadb",
@@ -69,7 +75,8 @@ class DatabaseConnector:
             The result of the executed query.
 
         Raises:
-            SQLYExecutionError: If the query is invalid or an error occurs during execution.
+            SQLYExecutionError: If the query is invalid or an error occurs during
+            execution.
         """
         # Use provided values or fall back to instance attributes
         db_type = db_type or self.db_type

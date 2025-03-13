@@ -22,7 +22,7 @@ class DBConnectorFactory:
     @staticmethod
     def create_connector(db_type: str, connection: Any) -> Any:
         """
-        Create and return a database connector instance based on the specified database type.
+        Create and return a database connector instance based on the database type.
 
         Args:
             db_type: The type of the database (e.g., "sqlite", "mariadb",

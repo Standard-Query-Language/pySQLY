@@ -24,8 +24,9 @@ class MSSQLConnector(BaseDBConnector):
                 establish a new connection.
 
         Notes:
-            If a connection string is provided, it should be in the format required by pyodbc,
-            typically including server, database, authentication details, and other relevant parameters.
+            If a connection string is provided, it should be in the format required by
+            pyodbc, typically including server, database, authentication details,
+            and other relevant parameters.
         """
         if isinstance(connection, str):
             connection = pyodbc.connect(connection)
