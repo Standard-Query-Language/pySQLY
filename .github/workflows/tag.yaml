@@ -22,18 +22,3 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.TAG_TOKEN }}
         WITH_V: true
-    - name: Update package version
-      if: steps.tag.outputs.new_tag
-      run: |
-        # Extract version without the 'v' prefix
-        VERSION=${GITHUB_REF_NAME#v}
-        # For a Python package
-        sed -i "s/version=.*,/version='${VERSION}',/" setup.py
-        # OR for projects using pyproject.toml
-        # sed -i "s/version = .*/version = \"${VERSION}\"/" pyproject.toml
-
-        git config --local user.email "action@github.com"
-        git config --local user.name "GitHub Action"
-        git add .
-        git commit -m "chore: bump version to ${VERSION}"
-        git push

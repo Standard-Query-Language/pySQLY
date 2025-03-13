@@ -35,7 +35,7 @@ jobs:
         if [ -f "setup.py" ]; then
           sed -i "s/version=['\"][^'\"]*['\"]/version='${VERSION}'/g" setup.py
         fi
-        if [ -f "pyproject.toml" x]; then
+        if [ -f "pyproject.toml" ]; then
           sed -i "s/version = \"[^\"]*\"/version = \"${VERSION}\"/g" pyproject.toml
         fi
         if [ -f "__init__.py" ]; then
