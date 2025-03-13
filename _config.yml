@@ -1,25 +1,29 @@
 remote_theme: pages-themes/architect@v0.2.0
 plugins:
-- jekyll-remote-theme
-- jekyll-seo-tag
-- jekyll-sitemap
+  - jekyll-remote-theme
+  - jekyll-seo-tag
+  - jekyll-sitemap
+  - jekyll-minifier
 
 # Site settings
-title: Python Standard Query Language (pySQLY) Documentation
-description: "A powerful Python library for standardized SQL querying with YAML syntax - simplify database interactions across SQLite, MySQL, PostgreSQL, Oracle and MS SQL Server"
+title: pySQLY - Python Standard Query Language | SQL with YAML Syntax
+tagline: Simplify database interactions across SQLite, MySQL, PostgreSQL, Oracle, MS SQL Server
+description: pySQLY is a Python library that standardizes SQL querying with YAML syntax, making database operations consistent across multiple database engines
 author: Standard Query Language
 lang: en_US
 show_downloads: true
-google_analytics: # Add your GA tracking ID here if needed
+url: https://standard-query-language.github.io
+baseurl: /pySQLY
 
 # SEO settings
-twitter:
-  username: pysqly
-  card: summary
+
 social:
   name: pySQLY
   links:
     - https://github.com/Standard-Query-Language/pySQLY
+    - https://pypi.org/project/pysql
+    - https://standard-query-language.github.io/pySQLY/
+    - https://twitter.com/pySQLY
 
 # Theme customization
 colors:
@@ -41,3 +45,14 @@ nav:
     url: /examples/
   - title: GitHub
     url: https://github.com/Standard-Query-Language/pySQLY
+
+# Jekyll Minifier settings
+jekyll-minifier:
+  compress_css: true
+  compress_javascript: true
+  compress_json: true
+  compress_html: true
+  exclude: ['*.xml', '*.txt']
+
+# Keywords for SEO
+keywords: python, sql, yaml, database, query language, sqlite, mysql, postgresql, oracle, sql server
