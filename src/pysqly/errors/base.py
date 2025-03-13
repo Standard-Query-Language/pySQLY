@@ -1,5 +1,6 @@
 """Base exception classes for pySQLY."""
 
+
 class SQLYError(Exception):
     """
     Exception raised for errors related to SQLY operations.
@@ -8,4 +9,5 @@ class SQLYError(Exception):
     SQLY-related errors. It can be used to catch all SQLY-specific
     exceptions in a single except block.
     """
+
     pass

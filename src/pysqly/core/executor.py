@@ -58,9 +58,7 @@ class SQLYExecutor:
                 )
             return self._run_query(parsed_query)
         except Exception as e:
-            raise SQLYExecutionError(
-                f"Failed to process SQLY query: {str(e)}"
-            ) from e
+            raise SQLYExecutionError(f"Failed to process SQLY query: {str(e)}") from e
 
     def _run_query(self, parsed_query: Dict[str, Any]) -> Any:
         """

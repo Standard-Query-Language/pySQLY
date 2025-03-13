@@ -10,4 +10,5 @@ class SQLYExecutionError(SQLYError):
     Attributes:
         message -- explanation of the error
     """
+
     pass

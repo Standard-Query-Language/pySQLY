@@ -10,4 +10,5 @@ class SQLYParseError(SQLYError):
     Attributes:
         message -- explanation of the error
     """
+
     pass
