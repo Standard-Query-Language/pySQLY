@@ -1,57 +1,49 @@
 name: Release on Tags
 
 on:
-  push:
-    tags:
-      - '*'  # Push events to matching v*, i.e. v1.0, v20.15.10
+    push:
+        tags:
+            - '*'  # Push events to matching v*, i.e. v1.0, v20.15.10
 
 permissions:
-  contents: write
-  packages: write
+    contents: write
+    packages: write
 
 jobs:
-  build-and-release:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+    build-and-release:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+              with:
+                  fetch-depth: 0
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: 3.x
+            - name: Set up Python
+              uses: actions/setup-python@v5
+              with:
+                  python-version: 3.x
 
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install setuptools wheel twine
+            - name: Install dependencies
+              run: |
+                  python -m pip install --upgrade pip
+                  pip install setuptools wheel twine
 
-      - name: Extract tag name
-        id: tag
-        run: |
-          echo "TAG_NAME=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
-          # Remove 'v' prefix if present for version
-          echo "VERSION_NAME=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+            - name: Extract tag name
+              id: tag
+              run: echo "TAG_NAME=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
 
-      - name: Update version in setup.py
-        run: |
-          # Replace version in setup.py with the tag version
-          sed -i "s/version=\".*\"/version=\"${{ steps.tag.outputs.VERSION_NAME }}\"/g" setup.py
+            - name: Build and package
+              run: |
+                  python setup.py sdist bdist_wheel
 
-      - name: Build and package
-        run: |
-          python setup.py sdist bdist_wheel
-
-      - name: Create Release
-        id: create_release
-        uses: softprops/action-gh-release@v2
-        with:
-          name: Release ${{ steps.tag.outputs.TAG_NAME }}
-          draft: false
-          prerelease: false
-          files: |
-            dist/*
-        env:
-          GITHUB_TOKEN: ${{ secrets.TAG_TOKEN }}
+            - name: Create Release
+              id: create_release
+              uses: softprops/action-gh-release@v2
+              with:
+                  name: Release ${{ steps.tag.outputs.TAG_NAME }}
+                  draft: false
+                  prerelease: false
+                  files: |
+                    dist/*
+              env:
+                  GITHUB_TOKEN: ${{ secrets.TAG_TOKEN }}
