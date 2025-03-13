@@ -4,6 +4,8 @@ plugins:
   - jekyll-seo-tag
   - jekyll-sitemap
   - jekyll-minifier
+  - jekyll-optional-front-matter
+  - jekyll-relative-links
 
 # Site settings
 title: pySQLY - Python Standard Query Language | SQL with YAML Syntax
@@ -15,8 +17,20 @@ show_downloads: true
 url: https://standard-query-language.github.io
 baseurl: /pySQLY
 
-# SEO settings
+# Markdown processing
+markdown: kramdown
+kramdown:
+  input: GFM
+  auto_ids: true
 
+# Convert markdown files to HTML
+optional_front_matter:
+  remove_originals: false
+relative_links:
+  enabled: true
+  collections: true
+
+# SEO settings
 social:
   name: pySQLY
   links:
