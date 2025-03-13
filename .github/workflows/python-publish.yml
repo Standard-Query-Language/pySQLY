@@ -3,8 +3,9 @@
 name: Upload Python Package
 
 on:
-  release:
-    types: [published]
+  push:
+    tags:
+      - v*  # Run when any tag starting with 'v' is pushed
 
 permissions:
   contents: read
