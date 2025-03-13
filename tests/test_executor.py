@@ -1,7 +1,8 @@
 """Tests for the SQLYExecutor module."""
 
 import pytest
-from pysqly import SQLYExecutor, SQLYExecutionError, SQLYParseError
+
+from pysqly import SQLYExecutionError, SQLYExecutor, SQLYParseError
 
 
 def test_executor_init():
@@ -26,21 +27,25 @@ def test_executor_invalid_query(sqlite_connection, monkeypatch):
 
     # Test with missing required fields
     with pytest.raises(SQLYExecutionError):
-        executor.execute("""
+        executor.execute(
+            """
         select:
           - id
           - name
         # Missing 'from' field
-        """)
+        """
+        )
 
     # Test with invalid YAML
     with pytest.raises(SQLYParseError):
-        executor.execute("""
+        executor.execute(
+            """
         select:
           - id
           name  # Missing hyphen
         from: users
-        """)
+        """
+        )
 
 
 def test_executor_missing_db_type():
@@ -48,11 +53,13 @@ def test_executor_missing_db_type():
     executor = SQLYExecutor("test.db")
 
     with pytest.raises(SQLYExecutionError):
-        executor.execute("""
+        executor.execute(
+            """
         select:
           - id
         from: users
-        """)
+        """
+        )
 
 
 def test_executor_query(sqlite_connector, monkeypatch):
@@ -61,14 +68,15 @@ def test_executor_query(sqlite_connector, monkeypatch):
     monkeypatch.setattr(
         sqlite_connector,
         "execute_query",
-        lambda query: [("Alice", "alice@example.com"), ("Bob", "bob@example.com")]
+        lambda query: [("Alice", "alice@example.com"), ("Bob", "bob@example.com")],
     )
 
     # Create executor with mocked connector
     executor = SQLYExecutor(sqlite_connector.connection, "sqlite")
 
     # Execute a test query
-    result = executor.execute("""
+    result = executor.execute(
+        """
     select:
       - name
       - email
@@ -77,7 +85,8 @@ def test_executor_query(sqlite_connector, monkeypatch):
       - field: active
         operator: "="
         value: 1
-    """)
+    """
+    )
 
     # Check the result
     assert len(result) == 2

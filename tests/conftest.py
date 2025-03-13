@@ -1,8 +1,11 @@
 """Test configuration for pySQLY."""
 
-import pytest
 import sqlite3
+
+import pytest
+
 from pysqly.connectors import SQLiteConnector
+
 
 @pytest.fixture
 def sqlite_connection():
@@ -11,14 +14,16 @@ def sqlite_connection():
 
     # Create a test table
     cursor = conn.cursor()
-    cursor.execute("""
+    cursor.execute(
+        """
         CREATE TABLE users (
             id INTEGER PRIMARY KEY,
             name TEXT NOT NULL,
             email TEXT NOT NULL,
             active INTEGER
         )
-    """)
+    """
+    )
 
     # Insert some test data
     users = [
@@ -26,15 +31,13 @@ def sqlite_connection():
         (2, "Bob", "bob@example.com", 1),
         (3, "Charlie", "charlie@example.com", 0),
     ]
-    cursor.executemany(
-        "INSERT INTO users VALUES (?, ?, ?, ?)",
-        users
-    )
+    cursor.executemany("INSERT INTO users VALUES (?, ?, ?, ?)", users)
     conn.commit()
 
     yield conn
 
     conn.close()
+
 
 @pytest.fixture
 def sqlite_connector(sqlite_connection):

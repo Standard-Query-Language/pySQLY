@@ -1,6 +1,9 @@
 """Microsoft SQL Server connector implementation."""
 
+from typing import Any, Union
+
 import pyodbc
+
 from .base import BaseDBConnector
 
 
@@ -10,12 +13,13 @@ class MSSQLConnector(BaseDBConnector):
 
     This class provides a connection interface to Microsoft SQL Server databases.
     """
-    def __init__(self, connection):
+
+    def __init__(self, connection: Union[str, Any]) -> None:
         """
         Initialize the MSSQLConnector with a database connection.
 
         Args:
-            connection (Union[str, pyodbc.Connection]): Either a connection string or a
+            connection: Either a connection string or a
                 pyodbc Connection object. If a string is provided, it will be used to
                 establish a new connection.
 

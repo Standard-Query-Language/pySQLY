@@ -1,6 +1,9 @@
 """PostgreSQL connector implementation."""
 
+from typing import Any, Union
+
 import psycopg2
+
 from .base import BaseDBConnector
 
 
@@ -10,11 +13,13 @@ class PostgresConnector(BaseDBConnector):
 
     This class provides a connection interface to a PostgreSQL database.
     """
-    def __init__(self, connection):
-        """Initialize a PostgresConnector.
+
+    def __init__(self, connection: Union[str, Any]) -> None:
+        """
+        Initialize a PostgresConnector.
 
         Args:
-            connection (str or psycopg2.connection): Either a connection string to establish a new connection
+            connection: Either a connection string to establish a new connection
                 or an existing psycopg2 connection object. If a string is provided, it will be used to create
                 a new connection.
 

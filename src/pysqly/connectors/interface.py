@@ -1,6 +1,7 @@
 """Interface for database connectors."""
 
 from abc import ABC, abstractmethod
+from typing import Any, List
 
 
 class IDBConnector(ABC):
@@ -14,28 +15,20 @@ class IDBConnector(ABC):
     """
 
     @abstractmethod
-    def execute(self, sql, params):
+    def execute(self, sql: str, params: List[Any]) -> Any:
         """
         Execute a SQL query with parameters.
 
         This method executes a SQL query with the provided parameters against the database.
 
-        Parameters
-        ----------
-        sql : str
-            The SQL query to execute.
-        params : tuple or dict
-            The parameters to be used in the SQL query. Can be a tuple for positional
-            parameters or a dictionary for named parameters.
+        Args:
+            sql: The SQL query to execute.
+            params: The parameters to be used in the SQL query.
 
-        Returns
-        -------
-        Any
+        Returns:
             The result of the query execution, which depends on the specific database implementation.
 
-        Raises
-        ------
-        DatabaseError
-            If the query execution fails.
+        Raises:
+            DatabaseError: If the query execution fails.
         """
         pass

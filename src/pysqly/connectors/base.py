@@ -1,5 +1,7 @@
 """Base implementation of the database connector interface."""
 
+from typing import Any, Dict, List
+
 from pysqly.core import SQLYUtils
 from pysqly.errors import SQLYExecutionError
 
@@ -14,7 +16,7 @@ class BaseDBConnector(IDBConnector):
         connection: A database connection object.
     """
 
-    def __init__(self, connection):
+    def __init__(self, connection: Any) -> None:
         """
         Initialize the BaseDBConnector with a database connection.
 
@@ -23,30 +25,30 @@ class BaseDBConnector(IDBConnector):
         """
         self.connection = connection
 
-    def execute_query(self, query: dict):
+    def execute_query(self, query: Dict[str, Any]) -> Any:
         """
         Execute a SQL query constructed from the given dictionary.
 
         Args:
-            query (dict): A dictionary representing the query to be executed.
+            query: A dictionary representing the query to be executed.
 
         Returns:
-            Any: The result of the executed query.
+            The result of the executed query.
         """
         sql, params = SQLYUtils.translate_to_sql(query)
         return self.execute(sql, params)
 
-    def execute(self, sql, params):
+    def execute(self, sql: str, params: List[Any]) -> Any:
         """
         Execute a given SQL statement with the provided parameters.
 
         Args:
-            sql (str): The SQL statement to be executed.
-            params (tuple or dict): The parameters to be used with the SQL statement.
+            sql: The SQL statement to be executed.
+            params: The parameters to be used with the SQL statement.
 
         Returns:
-            list: If the SQL statement is a SELECT query, returns the fetched results.
-            str: If the SQL statement is not a SELECT query, returns a success message.
+            If the SQL statement is a SELECT query, returns the fetched results.
+            If the SQL statement is not a SELECT query, returns a success message.
 
         Raises:
             SQLYExecutionError: If an error occurs during the execution of the SQL statement.
@@ -59,8 +61,6 @@ class BaseDBConnector(IDBConnector):
             self.connection.commit()
             return "Query executed successfully"
         except Exception as e:
-            raise SQLYExecutionError(
-                f"{self.__class__.__name__} error: {str(e)}"
-            ) from e
+            raise SQLYExecutionError(f"{self.__class__.__name__} error: {str(e)}") from e
         finally:
             cursor.close()

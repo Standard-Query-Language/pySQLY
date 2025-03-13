@@ -1,7 +1,7 @@
 """Exception classes for pySQLY."""
 
 from .base import SQLYError
-from .parse import SQLYParseError
 from .execution import SQLYExecutionError
+from .parse import SQLYParseError
 
 __all__ = ["SQLYError", "SQLYParseError", "SQLYExecutionError"]

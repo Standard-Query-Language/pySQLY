@@ -1,7 +1,8 @@
 """Tests for the SQLYParser module."""
 
 import pytest
-from pysqly import SQLYParser, SQLYParseError
+
+from pysqly import SQLYParseError, SQLYParser
 
 
 def test_parser_valid_yaml():

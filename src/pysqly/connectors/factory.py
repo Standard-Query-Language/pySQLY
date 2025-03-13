@@ -1,11 +1,14 @@
 """Factory for creating database connectors."""
 
+from typing import Any
+
 from pysqly.errors import SQLYExecutionError
-from .sqlite import SQLiteConnector
+
 from .mariadb import MariaDBConnector
-from .postgres import PostgresConnector
-from .oracle import OracleConnector
 from .mssql import MSSQLConnector
+from .oracle import OracleConnector
+from .postgres import PostgresConnector
+from .sqlite import SQLiteConnector
 
 
 class DBConnectorFactory:
@@ -17,15 +20,15 @@ class DBConnectorFactory:
     """
 
     @staticmethod
-    def create_connector(db_type, connection):
+    def create_connector(db_type: str, connection: Any) -> Any:
         """
         Create and return a database connector instance based on the specified database type.
 
         Args:
-            db_type (str): The type of the database (e.g., "sqlite", "mariadb",
-                          "postgres", "oracle", "mssql").
+            db_type: The type of the database (e.g., "sqlite", "mariadb",
+                    "postgres", "oracle", "mssql").
             connection: The connection object or parameters required to establish
-                       the database connection.
+                    the database connection.
 
         Returns:
             An instance of the corresponding database connector class.
