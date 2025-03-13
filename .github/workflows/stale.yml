@@ -7,7 +7,7 @@ name: Mark stale issues and pull requests
 
 on:
   schedule:
-  - cron: '29 9 * * *'
+  - cron: 29 9 * * *
 
 jobs:
   stale:
@@ -16,6 +16,7 @@ jobs:
     permissions:
       issues: write
       pull-requests: write
+      contents: none
 
     steps:
     - uses: actions/stale@v9
