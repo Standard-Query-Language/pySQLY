@@ -36,4 +36,6 @@ jobs:
         black --check .
     - name: Test with pytest
       run: |
+        # Make sure run_tests.sh is executable
+        chmod +x ./run_tests.sh
         ./run_tests.sh

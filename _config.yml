@@ -2,12 +2,24 @@ remote_theme: pages-themes/architect@v0.2.0
 plugins:
 - jekyll-remote-theme
 - jekyll-seo-tag
+- jekyll-sitemap
 
 # Site settings
 title: Python Standard Query Language (pySQLY) Documentation
-description: A powerful Python library for standardized SQL querying
+description: "A powerful Python library for standardized SQL querying with YAML syntax - simplify database interactions across SQLite, MySQL, PostgreSQL, Oracle and MS SQL Server"
+author: Standard Query Language
+lang: en_US
 show_downloads: true
 google_analytics: # Add your GA tracking ID here if needed
+
+# SEO settings
+twitter:
+  username: pysqly
+  card: summary
+social:
+  name: pySQLY
+  links:
+    - https://github.com/Standard-Query-Language/pySQLY
 
 # Theme customization
 colors:
@@ -23,6 +35,8 @@ nav:
     url: /
   - title: Documentation
     url: /docs/
+  - title: API Reference
+    url: /api/
   - title: Examples
     url: /examples/
   - title: GitHub

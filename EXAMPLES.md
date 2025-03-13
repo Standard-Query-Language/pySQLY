@@ -1,6 +1,6 @@
 # pySQLY Examples
 
-This document provides examples of how to use pySQLY in various scenarios.
+This document provides practical examples of how to use pySQLY in various scenarios to simplify your database interactions.
 
 ## Table of Contents
 
@@ -9,6 +9,7 @@ This document provides examples of how to use pySQLY in various scenarios.
 - [Working with Different Databases](#working-with-different-databases)
 - [CLI Examples](#cli-examples)
 - [Error Handling](#error-handling)
+- [Best Practices](#best-practices)
 
 ## Basic Queries
 
@@ -231,4 +232,50 @@ except SQLYExecutionError as e:
     # Handle the error appropriately
 ```
 
-For more detailed API information, see the [API Documentation](./API.md).
+## Best Practices
+
+### Connection Management
+
+For better performance, reuse executor instances when making multiple queries:
+
+```python
+# Create once, use many times
+executor = SQLYExecutor("database.db", "sqlite")
+
+# Query 1
+users = executor.execute(user_query)
+
+# Query 2
+products = executor.execute(product_query)
+```
+
+### Error Handling Strategy
+
+Implement a comprehensive error handling strategy:
+
+```python
+from pysqly import SQLYExecutor, SQLYParseError, SQLYExecutionError, SQLYError
+
+try:
+    executor = SQLYExecutor("database.db", "sqlite")
+    results = executor.execute(query)
+except SQLYParseError as e:
+    # Handle parsing errors specifically
+    logger.error(f"Invalid YAML syntax: {e}")
+except SQLYExecutionError as e:
+    # Handle execution errors specifically
+    logger.error(f"Database execution failed: {e}")
+except SQLYError as e:
+    # Handle any other pySQLY errors
+    logger.error(f"pySQLY error: {e}")
+except Exception as e:
+    # Handle unexpected errors
+    logger.critical(f"Unexpected error: {e}")
+```
+
+## Related Resources
+
+- [API Documentation](./API.md) - Detailed library API reference
+- [Design Document](./DESIGN.md) - Architecture and design patterns
+- [Security Policy](./SECURITY.md) - Security best practices
+- [Contributing](./CONTRIBUTING.md) - How to contribute to pySQLY

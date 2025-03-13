@@ -63,6 +63,8 @@ multi_line_output = 3
 
 [tool.ruff]
 line-length = 88
+target-version = "py39"
+
+[tool.ruff.lint]
 select = ["E", "F", "I", "N", "B", "W"]
 ignore = ["E203"]
-target-version = "py39"

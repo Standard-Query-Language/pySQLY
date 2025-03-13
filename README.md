@@ -95,6 +95,9 @@ sqly-cli "select: [username, email]\nfrom: users\nwhere:\n  - field: active\n   
 - [API Documentation](./API.md) - Detailed library API reference
 - [Examples](./EXAMPLES.md) - More usage examples and patterns
 - [Contributing](./CONTRIBUTING.md) - Guidelines for contributing to pySQLY
+- [Code of Conduct](./CODE_OF_CONDUCT.md) - Our community standards
+- [Security Policy](./SECURITY.md) - Reporting vulnerabilities and security practices
+- [Design Document](./DESIGN.md) - Architecture and design patterns
 - [Changelog](./CHANGELOG.md) - Version history and changes
 
 ## Project Structure
@@ -141,6 +144,8 @@ pySQLY/
 ├── EXAMPLES.md               # Usage examples
 ├── CONTRIBUTING.md           # Contribution guidelines
 ├── CODE_OF_CONDUCT.md        # Code of conduct
+├── SECURITY.md               # Security policy
+├── DESIGN.md                 # Architecture design
 └── CHANGELOG.md              # Version history
 ```
 
@@ -161,6 +166,14 @@ where:
 ```
 
 See the [Examples](./EXAMPLES.md) document for more complex query patterns.
+
+## Why Choose pySQLY?
+
+- **Simplified Database Access**: Write database queries in a more readable format
+- **Database Agnostic**: Switch between database systems without changing your query syntax
+- **Reduced SQL Injection Risk**: Parameter binding is handled automatically
+- **Improved Productivity**: Less boilerplate code and more intuitive query structure
+- **Easy Integration**: Works with your existing Python applications
 
 ## License
 

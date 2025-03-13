@@ -1,6 +1,6 @@
 # pySQLY API Documentation
 
-This document provides detailed information about the pySQLY API.
+This document provides detailed information about the pySQLY API for developers working with the library.
 
 ## Table of Contents
 
@@ -39,7 +39,7 @@ SQLYExecutor(datasource, db_type=None)
 
 #### Methods
 
-##### execute
+##### execute_query
 
 ```python
 execute(query: str) -> Any
@@ -82,7 +82,7 @@ where:
 
 Handles parsing of SQLY query strings into structured dictionaries.
 
-#### Methods
+#### SQLYParser Methods
 
 ##### parse
 
@@ -122,7 +122,7 @@ parsed_query = SQLYParser.parse(query)
 
 Utility functions for SQLY operations.
 
-#### Methods
+#### SQLYUtils Methods
 
 ##### validate_query
 
@@ -194,7 +194,7 @@ Abstract method that must be implemented by all connectors.
 
 Base implementation of the IDBConnector interface.
 
-#### Methods
+#### BaseDBConnector Methods
 
 ##### execute_query
 
@@ -216,7 +216,7 @@ Executes raw SQL with parameters.
 
 High-level connector that manages connections to various database types.
 
-#### Constructor
+#### DatabaseConnector Constructor
 
 ```python
 DatabaseConnector(db_type, connection)
@@ -241,7 +241,7 @@ Executes a SQLY query against a specified database.
 
 Factory class for creating database-specific connectors.
 
-#### Methods
+#### DBConnectorFactory Methods
 
 ##### create_connector
 
@@ -325,4 +325,11 @@ optional arguments:
   --version             show program's version number and exit
 ```
 
-For more examples, see the [Examples](./EXAMPLES.md) document.
+## Related Resources
+
+- [Main README](./README.md) - Overview and getting started
+- [Examples](./EXAMPLES.md) - Usage examples and patterns
+- [Design Document](./DESIGN.md) - Architecture and design decisions
+- [Security Policy](./SECURITY.md) - Security considerations
+- [Changelog](./CHANGELOG.md) - Version history and changes
+- [Contributing](./CONTRIBUTING.md) - How to contribute to pySQLY
