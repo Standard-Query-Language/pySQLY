@@ -2,8 +2,9 @@
 
 from typing import Any, Dict
 
-from pysqly.connectors import DatabaseConnector
-from pysqly.errors import SQLYExecutionError
+# Remove this import to break circular dependency
+# from pysqly.connectors import DatabaseConnector
+from pysqly.errors import SQLYExecutionError, SQLYParseError
 
 from .parser import SQLYParser
 from .utils import SQLYUtils
@@ -35,7 +36,14 @@ class SQLYExecutor:
         """
         self.datasource = datasource
         self.db_type = db_type
-        self.db_connector = DatabaseConnector(db_type, datasource) if db_type else None
+        self.db_connector = None
+
+        # Initialize connector if db_type is provided
+        if db_type:
+            # Import here to avoid circular imports
+            from pysqly.connectors import DatabaseConnector
+
+            self.db_connector = DatabaseConnector(db_type, datasource)
 
     def execute(self, query: str) -> Any:
         """
@@ -48,6 +56,7 @@ class SQLYExecutor:
             The result of the executed query.
 
         Raises:
+            SQLYParseError: If the query contains invalid SQLY syntax.
             SQLYExecutionError: If the query is invalid or execution fails.
         """
         try:
@@ -57,6 +66,9 @@ class SQLYExecutor:
                     "Invalid SQLY query structure: Missing required fields."
                 )
             return self._run_query(parsed_query)
+        except SQLYParseError:
+            # Re-raise SQLYParseError directly without wrapping
+            raise
         except Exception as e:
             raise SQLYExecutionError(f"Failed to process SQLY query: {str(e)}") from e
 

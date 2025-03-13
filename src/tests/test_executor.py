@@ -2,7 +2,8 @@
 
 import pytest
 
-from pysqly import SQLYExecutionError, SQLYExecutor, SQLYParseError
+from pysqly.core import SQLYExecutor
+from pysqly.errors import SQLYExecutionError, SQLYParseError
 
 
 def test_executor_init():
@@ -20,10 +21,10 @@ def test_executor_init():
     assert executor.db_connector is None
 
 
-def test_executor_invalid_query(sqlite_connection, monkeypatch):
+def test_executor_invalid_query():
     """Test execution with invalid query."""
     # Create executor with test database
-    executor = SQLYExecutor(sqlite_connection, "sqlite")
+    executor = SQLYExecutor(":memory:", "sqlite")
 
     # Test with missing required fields
     with pytest.raises(SQLYExecutionError):
@@ -62,17 +63,50 @@ def test_executor_missing_db_type():
         )
 
 
-def test_executor_query(sqlite_connector, monkeypatch):
-    """Test successful query execution."""
-    # Mock the execute_query method to avoid actual database operation
-    monkeypatch.setattr(
-        sqlite_connector,
-        "execute_query",
-        lambda query: [("Alice", "alice@example.com"), ("Bob", "bob@example.com")],
+def test_executor_query(sqlite_connector):
+    """Test successful query execution with a real database."""
+    # Create executor that uses our sqlite_connector fixture
+    executor = SQLYExecutor(":memory:", "sqlite")
+
+    # Replace the connector with our test connector
+    executor.db_connector.connector = sqlite_connector
+
+    # Execute a test query against our fixture database
+    result = executor.execute(
+        """
+    select:
+      - name
+      - email
+    from: users
+    where:
+      - field: active
+        operator: "="
+        value: 1
+    """
     )
 
-    # Create executor with mocked connector
-    executor = SQLYExecutor(sqlite_connector.connection, "sqlite")
+    # Check the result - should find Alice and Bob who have active=1
+    assert len(result) == 2
+    # Results are tuples of (name, email)
+    names = [row[0] for row in result]
+    assert "Alice" in names
+    assert "Bob" in names
+    assert "Charlie" not in names
+
+
+def test_executor_with_mock(monkeypatch):
+    """Test successful query execution with mock."""
+    # Create executor with mock behavior
+    executor = SQLYExecutor("test.db", "sqlite")
+
+    # Mock the execute_query method to avoid actual database operation
+    def mock_execute_query(self, query, **kwargs):
+        return [("Alice", "alice@example.com"), ("Bob", "bob@example.com")]
+
+    # Apply the mock to the DatabaseConnector class
+    monkeypatch.setattr(
+        executor.db_connector.__class__, "execute_query", mock_execute_query
+    )
 
     # Execute a test query
     result = executor.execute(

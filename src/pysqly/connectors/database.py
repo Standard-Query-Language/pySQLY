@@ -2,7 +2,8 @@
 
 from typing import Any, Dict, Optional
 
-from .factory import DBConnectorFactory
+# Import factory at time of use to avoid circular imports
+# from .factory import DBConnectorFactory
 
 
 class DatabaseConnector:
@@ -51,6 +52,9 @@ class DatabaseConnector:
             The database connector instance.
         """
         if self.connector is None:
+            # Import here to avoid circular imports
+            from .factory import DBConnectorFactory
+
             self.connector = DBConnectorFactory.create_connector(
                 self.db_type, self.connection
             )
@@ -83,6 +87,9 @@ class DatabaseConnector:
         connection = connection or self.connection
 
         if db_type != self.db_type or connection != self.connection:
+            # Import here to avoid circular imports
+            from .factory import DBConnectorFactory
+
             # If parameters differ from instance attributes, create a new connector
             connector = DBConnectorFactory.create_connector(db_type, connection)
         else:

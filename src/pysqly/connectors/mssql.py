@@ -2,7 +2,13 @@
 
 from typing import Any, Union
 
-import pyodbc
+# Import MS SQL connector conditionally
+try:
+    import pyodbc
+
+    MSSQL_AVAILABLE = True
+except ImportError:
+    MSSQL_AVAILABLE = False
 
 from .base import BaseDBConnector
 
@@ -27,7 +33,17 @@ class MSSQLConnector(BaseDBConnector):
             If a connection string is provided, it should be in the format required by
             pyodbc, typically including server, database, authentication details,
             and other relevant parameters.
+
+        Raises:
+            ImportError: If the pyodbc package is not installed.
         """
+        if not MSSQL_AVAILABLE:
+            raise ImportError(
+                "pyodbc is not installed. "
+                "Please install it with 'pip install pyodbc' "
+                "or 'pip install pysqly[mssql]'."
+            )
+
         if isinstance(connection, str):
             connection = pyodbc.connect(connection)
         super().__init__(connection)

@@ -1,6 +1,6 @@
 """Tests for the SQLYUtils module."""
 
-from pysqly import SQLYUtils
+from pysqly.core import SQLYUtils
 
 
 def test_validate_query_valid():

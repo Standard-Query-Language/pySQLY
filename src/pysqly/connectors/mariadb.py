@@ -2,7 +2,13 @@
 
 from typing import Any, Union
 
-import mysql.connector
+# Import MySQL connector conditionally
+try:
+    import mysql.connector
+
+    MYSQL_AVAILABLE = True
+except ImportError:
+    MYSQL_AVAILABLE = False
 
 from .base import BaseDBConnector
 
@@ -25,7 +31,17 @@ class MariaDBConnector(BaseDBConnector):
             connection: If a string is provided, it's treated as a connection string
                 and a new connection is established. If a connection object is provided,
                 it's used directly.
+
+        Raises:
+            ImportError: If the mysql-connector-python package is not installed.
         """
+        if not MYSQL_AVAILABLE:
+            raise ImportError(
+                "mysql-connector-python is not installed. "
+                "Please install it with 'pip install mysql-connector-python' "
+                "or 'pip install pysqly[mariadb]'."
+            )
+
         if isinstance(connection, str):
             connection = mysql.connector.connect(connection)
         super().__init__(connection)

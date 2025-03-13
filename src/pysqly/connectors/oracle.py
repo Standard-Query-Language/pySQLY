@@ -2,7 +2,13 @@
 
 from typing import Any, Union
 
-import cx_Oracle
+# Import Oracle connector conditionally
+try:
+    import cx_Oracle
+
+    ORACLE_AVAILABLE = True
+except ImportError:
+    ORACLE_AVAILABLE = False
 
 from .base import BaseDBConnector
 
@@ -29,7 +35,17 @@ class OracleConnector(BaseDBConnector):
         Notes:
             The connection string format follows the Oracle standard:
             "username/password@host:port/service_name"
+
+        Raises:
+            ImportError: If the cx_Oracle package is not installed.
         """
+        if not ORACLE_AVAILABLE:
+            raise ImportError(
+                "cx_Oracle is not installed. "
+                "Please install it with 'pip install cx_Oracle' "
+                "or 'pip install pysqly[oracle]'."
+            )
+
         if isinstance(connection, str):
             connection = cx_Oracle.connect(connection)
         super().__init__(connection)

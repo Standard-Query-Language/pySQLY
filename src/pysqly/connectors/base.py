@@ -2,9 +2,10 @@
 
 from typing import Any, Dict, List
 
-from pysqly.core import SQLYUtils
 from pysqly.errors import SQLYExecutionError
 
+# Import SQLYUtils when needed to avoid circular imports
+# from pysqly.core import SQLYUtils
 from .interface import IDBConnector
 
 
@@ -35,8 +36,34 @@ class BaseDBConnector(IDBConnector):
         Returns:
             The result of the executed query.
         """
-        sql, params = SQLYUtils.translate_to_sql(query)
+        # Import here to avoid circular imports
+        from pysqly.core import SQLYUtils
+
+        sql, params = SQLYUtils.translate_to_sql(query, self.get_db_type())
         return self.execute(sql, params)
+
+    def get_db_type(self) -> str:
+        """
+        Get the database type for this connector.
+
+        Returns:
+            String representing the database type
+        """
+        # Extract the database type from the class name
+        # (e.g., SQLiteConnector -> sqlite)
+        class_name = self.__class__.__name__.lower()
+        if "sqlite" in class_name:
+            return "sqlite"
+        elif "mariadb" in class_name or "mysql" in class_name:
+            return "mariadb"
+        elif "postgres" in class_name:
+            return "postgres"
+        elif "oracle" in class_name:
+            return "oracle"
+        elif "mssql" in class_name:
+            return "mssql"
+        else:
+            raise ValueError(f"Unknown database type for {class_name}")
 
     def execute(self, sql: str, params: List[Any]) -> Any:
         """

@@ -2,7 +2,8 @@
 
 import pytest
 
-from pysqly import SQLYParseError, SQLYParser
+from pysqly.core import SQLYParser
+from pysqly.errors import SQLYParseError
 
 
 def test_parser_valid_yaml():

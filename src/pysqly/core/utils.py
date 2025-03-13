@@ -11,10 +11,23 @@ class SQLYUtils:
         validate_query(query: dict) -> bool:
             Checks if the provided query dictionary contains the necessary fields.
 
-        translate_to_sql(query: dict) -> tuple[str, list]:
+        translate_to_sql(query: dict, db_type: str = None) -> tuple[str, list]:
             Translates a dictionary query representation into a SQL query and
             parameters.
     """
+
+    # Database-specific parameter placeholders
+    PARAM_PLACEHOLDERS = {
+        "sqlite": "?",
+        "mariadb": "%s",
+        "mysql": "%s",
+        "postgres": "%s",
+        "oracle": ":param",
+        "mssql": "?",
+    }
+
+    # Default placeholder to use if db_type is not specified
+    DEFAULT_PLACEHOLDER = "%s"
 
     @staticmethod
     def validate_query(query: Any) -> bool:
@@ -30,7 +43,9 @@ class SQLYUtils:
         return isinstance(query, dict) and "select" in query and "from" in query
 
     @staticmethod
-    def translate_to_sql(query: Dict[str, Any]) -> Tuple[str, List[Any]]:
+    def translate_to_sql(
+        query: Dict[str, Any], db_type: str = None
+    ) -> Tuple[str, List[Any]]:
         """
         Translate a dictionary query representation into a SQL query and its parameters.
 
@@ -45,6 +60,8 @@ class SQLYUtils:
         }
         Args:
             query: Dictionary representing a SQL query
+            db_type: The type of database to generate placeholders
+            for (sqlite, mariadb, etc.)
         Returns:
             A tuple containing:
                 - The SQL query string with placeholders
@@ -58,10 +75,15 @@ class SQLYUtils:
             ...         {"field": "status", "operator": "=", "value": "active"}
             ...     ]
             ... }
-            >>> translate_to_sql(query)
-            ('SELECT id, name FROM users WHERE age > %s AND status = %s',
+            >>> translate_to_sql(query, "sqlite")
+            ('SELECT id, name FROM users WHERE age > ? AND status = ?',
             [18, 'active'])
         """
+        # Get the appropriate parameter placeholder for the specified database type
+        placeholder = SQLYUtils.PARAM_PLACEHOLDERS.get(
+            db_type, SQLYUtils.DEFAULT_PLACEHOLDER
+        )
+
         # Use a placeholder approach for the entire query structure
         sql_parts = ["SELECT"]
         params: List[Any] = []
@@ -81,7 +103,8 @@ class SQLYUtils:
             sql_parts.append("WHERE")
             where_clauses = []
             for cond in where_conditions:
-                where_clauses.append(f"{cond['field']} {cond['operator']} %s")
+                where_clause = f"{cond['field']} {cond['operator']} {placeholder}"
+                where_clauses.append(where_clause)
                 params.append(cond["value"])
             sql_parts.append(" AND ".join(where_clauses))
 

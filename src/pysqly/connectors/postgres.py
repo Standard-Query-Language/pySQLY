@@ -2,7 +2,13 @@
 
 from typing import Any, Union
 
-import psycopg2
+# Import PostgreSQL connector conditionally
+try:
+    import psycopg2
+
+    POSTGRES_AVAILABLE = True
+except ImportError:
+    POSTGRES_AVAILABLE = False
 
 from .base import BaseDBConnector
 
@@ -26,7 +32,17 @@ class PostgresConnector(BaseDBConnector):
         Notes:
             The connection string should be in the format:
             "host=hostname dbname=database user=username password=password"
+
+        Raises:
+            ImportError: If the psycopg2 package is not installed.
         """
+        if not POSTGRES_AVAILABLE:
+            raise ImportError(
+                "psycopg2 is not installed. "
+                "Please install it with 'pip install psycopg2' "
+                "or 'pip install pysqly[postgres]'."
+            )
+
         if isinstance(connection, str):
             connection = psycopg2.connect(connection)
         super().__init__(connection)
