@@ -26,6 +26,22 @@ jobs:
         python -m pip install --upgrade pip
         pip install build twine
 
+    - name: Set version from tag
+      run: |
+        # Extract tag name without 'v' prefix if present
+        VERSION=${GITHUB_REF#refs/tags/}
+        VERSION=${VERSION#v}
+        # Update version in setup.py, pyproject.toml or __init__.py
+        if [ -f "setup.py" ]; then
+          sed -i "s/version=['\"][^'\"]*['\"]/version='${VERSION}'/g" setup.py
+        fi
+        if [ -f "pyproject.toml" ]; then
+          sed -i "s/version = \"[^\"]*\"/version = \"${VERSION}\"/g" pyproject.toml
+        fi
+        if [ -f "__init__.py" ]; then
+          sed -i "s/__version__ = ['\"][^'\"]*['\"]/__version__ = '${VERSION}'/g" __init__.py
+        fi
+
     - name: Build package
       run: python -m build
 
